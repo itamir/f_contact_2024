@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:f_contact_2024/domain/contact.dart';
 import 'package:f_contact_2024/helpers/contact_helper.dart';
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import 'contact_page.dart';
 
@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> {
                                 style: TextStyle(
                                     color: Colors.lightBlue, fontSize: 20.0)),
                             onPressed: () {
-                              launch("tel:${contatos[index].phone}");
+                              launchUrlString("tel:${contatos[index].phone}");
                               Navigator.pop(context);
                             })),
                     Padding(

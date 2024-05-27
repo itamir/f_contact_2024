@@ -1,27 +1,22 @@
-
 import 'dart:io';
 
 import 'package:f_contact_2024/domain/contact.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-
 class ContactPage extends StatefulWidget {
-  
   final Contact? contact;
 
   //construtor que inicia o contato.
   //Entre chaves porque é opcional.
   const ContactPage({super.key, this.contact});
-  
+
   @override
   State<ContactPage> createState() => _ContactPageState();
 }
 
 class _ContactPageState extends State<ContactPage> {
-
-
-   Contact? _editedContact;
+  Contact? _editedContact;
   bool _userEdited = false;
 
   //para garantir o foco no nome
@@ -49,44 +44,55 @@ class _ContactPageState extends State<ContactPage> {
     }
   }
 
-  Future<bool> _requestPop() {
-    if (_userEdited) {
-      showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              title: const Text("Abandonar alteração?"),
-              content: const Text("Os dados serão perdidos."),
-              actions: <Widget>[
-                TextButton(
-                    child: const Text("cancelar"),
-                    onPressed: () {
-                      Navigator.pop(context);
-                    }),
-                TextButton(
-                  child: const Text("sim"),
-                  onPressed: () {
-                    //desempilha 2x
-                    Navigator.pop(context);
-                    Navigator.pop(context);
-                  },
-                )
-              ],
-            );
-          });
-    } else {
-      return Future.value(true);
-    }
-    return Future.value(false);
+  Future<bool?> _showBackDialog() {
+    if(_userEdited) {
+      return showDialog<bool>(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Tem certeza que deseja sair?'),
+            content: const Text(
+              'Tem certeza que deseja realmente sair dessa tela?',
+            ),
+            actions: <Widget>[
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('Não'),
+                onPressed: () {
+                  Navigator.pop(context, false);
+                },
+              ),
+              TextButton(
+                style: TextButton.styleFrom(
+                  textStyle: Theme.of(context).textTheme.labelLarge,
+                ),
+                child: const Text('Sim'),
+                onPressed: () {
+                  Navigator.pop(context, true);
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } return Future.value(true);
   }
 
   @override
   Widget build(BuildContext context) {
     //com popup de confirmação
     return PopScope(
-      canPop: true,
-      onPopInvoked : (didPop){
-        _requestPop;
+      canPop: false,
+      onPopInvoked: (bool didPop) async {
+        if (didPop) {
+          return;
+        }
+        final bool shouldPop = await _showBackDialog() ?? false;
+        if (context.mounted && shouldPop) {
+          Navigator.pop(context);
+        }
       },
       child: Scaffold(
         appBar: AppBar(
@@ -120,7 +126,8 @@ class _ContactPageState extends State<ContactPage> {
                                 : const AssetImage('images/person.png')
                                     as ImageProvider))),
                 onTap: () {
-                  ImagePicker().pickImage(source: ImageSource.camera, imageQuality: 50)
+                  ImagePicker()
+                      .pickImage(source: ImageSource.camera, imageQuality: 50)
                       .then((file) {
                     if (file == null) {
                       return;
@@ -168,6 +175,3 @@ class _ContactPageState extends State<ContactPage> {
     );
   }
 }
-
-
-
